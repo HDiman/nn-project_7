@@ -60,6 +60,14 @@ def equalize(capital, stocks_price):
     return stocks_num, bonds_num
 
 
+# Блок по убиранию нулей
+def null_round(item1, item2, item3):
+    item1 = round(item1 / 1000)
+    item2 = round(item2 / 1000)
+    item3 = round(item3 / 1000)
+    return item1, item2, item3
+
+
 # Обновление в начале запуска
 start_training()
 
@@ -91,18 +99,24 @@ def index(request):
     bonds.save()
 
     # Блок достижения 10 лет
-    if stocks.month == 120 or stocks.month == 3:
+    if stocks.month == 120:
         if capital > 1000000:
             end_capital = round((capital / 1000000), 2)
-            news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. Вы сделали {end_capital} млн. руб."
+            news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} млн. руб."
         elif capital < 1000000:
             end_capital = round(capital / 1000)
-            news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. Вы сделали {end_capital} тыс. руб."
+            news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} тыс. руб."
         # Обновление в начале запуска
         start_training()
     else:
-        news_text = "Раз в два месяца идет переоценка портфеля. Если один из активов больше 60%, то портфель выравнивается."
+        news_text = "Раз в два месяца идет переоценка портфеля. " \
+                    "Если один из активов больше 60%, то портфель балансируется."
 
+    # Блок по округлению цен
+    stocks_sum, bonds_sum, capital = null_round(stocks_sum, bonds_sum, capital)
+
+    # Блок расчета прироста капитала
+    growth = capital - 100
 
 
     # Блок данных для страницы
@@ -120,6 +134,7 @@ def index(request):
             'capital': capital,
             'cash': cash,
             'month': stocks.month,
+            'growth': growth,
             }
 
     # Блок отправки данных на страницу

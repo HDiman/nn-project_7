@@ -10,6 +10,8 @@ cash = 0
 month = 0
 volatility = 0.2  # волатильность акции (стандартное отклонение ежемесячных процентных изменений цены)
 time_horizon = 120  # количество месяцев наблюдения
+# news_text = "Медленно богатеем!"
+# news_text = "Раз в два месяца идет переоценка портфеля. Если один из активов больше 60%, то портфель выравнивается."
 
 
 # Счетчик времени
@@ -65,6 +67,7 @@ start_training()
 def index(request):
 
     # Блок инициализации данных из Базы Данных
+    global news_text
     stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
 
@@ -78,13 +81,33 @@ def index(request):
     if stocks_interest > 59 or bonds_interest > 59:
         stocks.num, bonds.num = equalize(capital, stocks.price)
         bonds.price = 1000
+        bonds.month = 1
+
+    # Блок изменения месяца
+    stocks.month = months(stocks.month)
 
     # Блок сохранения данных в Базе Данных
     stocks.save()
     bonds.save()
 
+    # Блок достижения 10 лет
+    if stocks.month == 120 or stocks.month == 3:
+        if capital > 1000000:
+            end_capital = round((capital / 1000000), 2)
+            news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. Вы сделали {end_capital} млн. руб."
+        elif capital < 1000000:
+            end_capital = round(capital / 1000)
+            news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. Вы сделали {end_capital} тыс. руб."
+        # Обновление в начале запуска
+        start_training()
+    else:
+        news_text = "Раз в два месяца идет переоценка портфеля. Если один из активов больше 60%, то портфель выравнивается."
+
+
+
     # Блок данных для страницы
-    data = {'item1_title': stocks.title,
+    data = {'news': news_text,
+            'item1_title': stocks.title,
             'item1_num': stocks.num,
             'item1_sum': stocks_sum,
             'item1_price': stocks.price,
@@ -95,7 +118,9 @@ def index(request):
             'item2_price': bonds.price,
             'item2_int': bonds_interest,
             'capital': capital,
-            'cash': cash}
+            'cash': cash,
+            'month': stocks.month,
+            }
 
     # Блок отправки данных на страницу
     return render(request, 'main/index.html', context=data)

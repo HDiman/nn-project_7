@@ -55,14 +55,14 @@
                     <li>Прирост/убыток: {{ growth }} %</li>
                     <li>Депозит: {{ cash }} руб. </li>
                 </ul>
-                <button type="button" class="btn btn-lg btn-block btn-outline-primary">Уровнять</button>
-                <form action="{% url 'zero' %}" method="post">
+                <form action="{% url 'home' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-lg btn-block btn-outline-primary">Уровнять</button>
+                </form>
+                <form action="{% url 'home' %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-lg btn-block btn-primary">Продолжить</button>
                 </form>
-
-
-
             </div>
         </div>
     </div>

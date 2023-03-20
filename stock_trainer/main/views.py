@@ -20,14 +20,13 @@ def months(num):
 
 # Блок по сбросу к начальным настройкам со страницы
 def zero(request):
-    if request.method == 'POST':
-        stocks = Portfolio.objects.all()[0]
-        bonds = Portfolio.objects.all()[1]
-        stocks.title, stocks.num, stocks.price, stocks.month = 'Акции', 500, 100, -1
-        bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, -1
-        stocks.save()
-        bonds.save()
-        return redirect('home')
+    stocks = Portfolio.objects.all()[0]
+    bonds = Portfolio.objects.all()[1]
+    stocks.title, stocks.num, stocks.price, stocks.month = 'Акции', 500, 100, -1
+    bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, -1
+    stocks.save()
+    bonds.save()
+    return redirect('home')
 
 
 # Блок по сбросу к начальным настройкам внутри программы

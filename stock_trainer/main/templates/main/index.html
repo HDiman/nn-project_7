@@ -56,7 +56,12 @@
                     <li>Депозит: {{ cash }} руб. </li>
                 </ul>
                 <button type="button" class="btn btn-lg btn-block btn-outline-primary">Уровнять</button>
-                <button type="button" class="btn btn-lg btn-block btn-primary">Продолжить</button>
+                <form action="{% url 'zero' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-lg btn-block btn-primary">Продолжить</button>
+                </form>
+
+
 
             </div>
         </div>

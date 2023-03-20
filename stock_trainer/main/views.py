@@ -10,8 +10,6 @@ cash = 0
 month = 0
 volatility = 0.2  # волатильность акции (стандартное отклонение ежемесячных процентных изменений цены)
 time_horizon = 120  # количество месяцев наблюдения
-# news_text = "Медленно богатеем!"
-# news_text = "Раз в два месяца идет переоценка портфеля. Если один из активов больше 60%, то портфель выравнивается."
 
 
 # Счетчик времени
@@ -24,39 +22,29 @@ def months(num):
 def begin(request):
     stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
-    stocks.title, stocks.num, stocks.price, stocks.month = 'Акции', 500, 100, 0
-    bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, 0
+    stocks.title, stocks.num, stocks.price, stocks.month = 'Акции', 500, 100, -1
+    bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, -1
+    stocks.save()
+    bonds.save()
+    return redirect('home')
+
+
+# Блок по сбросу к начальным настройкам внутри программы
+def start_training_after_120():
+    stocks = Portfolio.objects.all()[0]
+    bonds = Portfolio.objects.all()[1]
+    stocks.title, stocks.num, stocks.price, stocks.month = 'Акции', 500, 100, -2
+    bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, -2
     stocks.save()
     bonds.save()
 
-    # Блок данных для страницы
-    data = {'news': "Медленно богатеем!",
-            'item1_title': stocks.title,
-            'item1_num': '5O0',
-            'item1_sum': '5O',
-            'item1_price': '10O',
-            'item1_int': '5O',
-            'item2_title': bonds.title,
-            'item2_num': '5O',
-            'item2_sum': '5O',
-            'item2_price': '100O',
-            'item2_int': '5O',
-            'capital': '10O',
-            'cash': 'O',
-            'month': '1',
-            'growth': 'O',
-            }
-
-    # Блок отправки данных на страницу
-    # return render(request, 'main/index.html', context=data)
-    return redirect('home')
 
 # Блок по сбросу к начальным настройкам внутри программы
 def start_training():
     stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
-    stocks.title, stocks.num, stocks.price, stocks.month = 'Акции', 500, 100, 1
-    bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, 1
+    stocks.title, stocks.num, stocks.price, stocks.month = 'Акции', 500, 100, -1
+    bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, -1
     stocks.save()
     bonds.save()
 
@@ -138,7 +126,7 @@ def index(request):
             end_capital = round(capital / 1000)
             news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} тыс. руб."
         # Обновление в начале запуска
-        start_training()
+        start_training_after_120()
     else:
         news_text = "Раз в два месяца идет переоценка портфеля. " \
                     "Если один из активов больше 60%, то портфель балансируется."
@@ -148,7 +136,6 @@ def index(request):
 
     # Блок расчета прироста капитала
     growth = capital - 100
-
 
     # Блок данных для страницы
     data = {'news': news_text,

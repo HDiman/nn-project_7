@@ -3,7 +3,6 @@ from .models import Portfolio
 import random
 import math
 
-
 # Create your views here.
 start_capital = 100000.00
 cash = 0
@@ -98,44 +97,53 @@ def index(request):
     stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
 
-    # Блок определения цен
-    stocks.price, bonds.price = prices(stocks.price, bonds.price)
+    if stocks.month != -1:  # не менять цены
+        # Блок определения цен
+        stocks.price, bonds.price = prices(stocks.price, bonds.price)
 
-    # Блок оценки портфеля
-    stocks_sum, bonds_sum, capital, stocks_interest, bonds_interest = briefcase(stocks.num, bonds.num, stocks.price, bonds.price)
+        # Блок оценки портфеля
+        stocks_sum, bonds_sum, capital, stocks_interest, bonds_interest = briefcase(stocks.num, bonds.num, stocks.price, bonds.price)
 
-    # Блок выравнивания портфеля
-    if stocks_interest > 59 or bonds_interest > 59:
-        stocks.num, bonds.num = equalize(capital, stocks.price)
-        bonds.price = 1000
-        bonds.month = 1
+        # Блок выравнивания портфеля
+        if stocks_interest > 59 or bonds_interest > 59:
+            stocks.num, bonds.num = equalize(capital, stocks.price)
+            bonds.price = 1000
+            bonds.month = 1
 
-    # Блок изменения месяца
-    stocks.month = months(stocks.month)
+        # Блок изменения месяца
+        stocks.month = months(stocks.month)
 
-    # Блок сохранения данных в Базе Данных
-    stocks.save()
-    bonds.save()
+        # Блок сохранения данных в Базе Данных
+        stocks.save()
+        bonds.save()
 
-    # Блок достижения 10 лет
-    if stocks.month == 120:
-        if capital > 1000000:
-            end_capital = round((capital / 1000000), 2)
-            news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} млн. руб."
-        elif capital < 1000000:
-            end_capital = round(capital / 1000)
-            news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} тыс. руб."
-        # Обновление в начале запуска
-        start_training_after_120()
+        # Блок достижения 10 лет
+        if stocks.month == 120:
+            if capital > 1000000:
+                end_capital = round((capital / 1000000), 2)
+                news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} млн. руб."
+            elif capital < 1000000:
+                end_capital = round(capital / 1000)
+                news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} тыс. руб."
+            # Обновление в начале запуска
+            start_training_after_120()
+        else:
+            news_text = "Раз в два месяца идет переоценка портфеля. " \
+                        "Если один из активов больше 60%, то портфель балансируется."
+
+        # Блок по округлению цен
+        stocks_sum, bonds_sum, capital = null_round(stocks_sum, bonds_sum, capital)
+
+        # Блок расчета прироста капитала
+        growth = capital - 100
     else:
+        stocks.month = 0
+        stocks.save()
+        stocks_sum, bonds_sum = 50, 50
+        stocks_interest, bonds_interest = 50, 50
+        capital, growth = 100, 0
         news_text = "Раз в два месяца идет переоценка портфеля. " \
                     "Если один из активов больше 60%, то портфель балансируется."
-
-    # Блок по округлению цен
-    stocks_sum, bonds_sum, capital = null_round(stocks_sum, bonds_sum, capital)
-
-    # Блок расчета прироста капитала
-    growth = capital - 100
 
     # Блок данных для страницы
     data = {'news': news_text,

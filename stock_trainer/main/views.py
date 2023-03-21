@@ -138,6 +138,7 @@ def index(request):
         growth = capital - 100
     else:
         stocks.month = 0
+        stocks.price, bonds.price = 100, 1000
         stocks.save()
         stocks_sum, bonds_sum = 50, 50
         stocks_interest, bonds_interest = 50, 50

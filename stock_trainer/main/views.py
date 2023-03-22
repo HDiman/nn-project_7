@@ -18,11 +18,27 @@ def months(num):
 
 
 # Блок по сбросу к начальным настройкам со страницы
-def zero(request):
+def zero_btn(request):
     stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
     stocks.title, stocks.num, stocks.price, stocks.month = 'Акции', 500, 100, -1
     bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, -1
+    stocks.save()
+    bonds.save()
+    return redirect('home')
+
+
+# Блок по уравниванию портфеля через кнопку
+def equalize_btn(request):
+    stocks = Portfolio.objects.all()[0]
+    bonds = Portfolio.objects.all()[1]
+    stocks_sum = round(stocks.price * stocks.num)
+    bonds_sum = round(bonds.price * bonds.num)
+    capital = round(stocks_sum + bonds_sum)
+    half_capital = round(capital / 2)
+    stocks.num = round(half_capital / stocks.price)
+    bonds.num = round(half_capital / 1000)
+    bonds.price, bonds.month = 1000, -10
     stocks.save()
     bonds.save()
     return redirect('home')
@@ -97,7 +113,7 @@ def index(request):
     stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
 
-    if stocks.month != -1:  # не менять цены
+    if stocks.month != -1:  # менять цены
         # Блок определения цен
         stocks.price, bonds.price = prices(stocks.price, bonds.price)
 
@@ -105,10 +121,10 @@ def index(request):
         stocks_sum, bonds_sum, capital, stocks_interest, bonds_interest = briefcase(stocks.num, bonds.num, stocks.price, bonds.price)
 
         # Блок выравнивания портфеля
-        if stocks_interest > 59 or bonds_interest > 59:
-            stocks.num, bonds.num = equalize(capital, stocks.price)
-            bonds.price = 1000
-            bonds.month = 1
+        # if stocks_interest > 59 or bonds_interest > 59:
+        #     stocks.num, bonds.num = equalize(capital, stocks.price)
+        #     bonds.price = 1000
+        #     bonds.month = 1
 
         # Блок изменения месяца
         stocks.month = months(stocks.month)
@@ -136,7 +152,8 @@ def index(request):
 
         # Блок расчета прироста капитала
         growth = capital - 100
-    else:
+
+    elif stocks.month == -1:
         stocks.month = 0
         stocks.price, bonds.price = 100, 1000
         stocks.save()
@@ -145,6 +162,7 @@ def index(request):
         capital, growth = 100, 0
         news_text = "Раз в два месяца идет переоценка портфеля. " \
                     "Если один из активов больше 60%, то портфель балансируется."
+
 
     # Блок данных для страницы
     data = {'news': news_text,

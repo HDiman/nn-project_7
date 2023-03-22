@@ -55,9 +55,9 @@
                     <li>Прирост/убыток: {{ growth }} %</li>
                     <li>Депозит: {{ cash }} руб. </li>
                 </ul>
-                <form action="{% url 'home' %}" method="post">
+                <form action="{% url 'equalize' %}" method="post">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-lg btn-block btn-outline-primary">Уровнять</button>
+                    <button type="submit" class="btn btn-lg btn-block btn-outline-primary">Сбалансировать</button>
                 </form>
                 <p></p>
                 <form action="{% url 'home' %}" method="post">

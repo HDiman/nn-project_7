@@ -3,6 +3,9 @@ from .models import Portfolio
 import random
 import math
 import time
+import json
+from django.http import JsonResponse
+
 
 # Create your views here.
 start_capital = 100000.00
@@ -10,6 +13,15 @@ cash = 0
 month = 0
 volatility = 0.2  # волатильность акции (стандартное отклонение ежемесячных процентных изменений цены)
 time_horizon = 120  # количество месяцев наблюдения
+
+
+# Блок по Ajax-запросы
+def get_data(request):
+    data = {
+        'name': 'John',
+        'age': '30'
+    }
+    return JsonResponse(json.dumps(data))
 
 
 # Счетчик времени

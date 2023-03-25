@@ -10,6 +10,8 @@
 <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
     <h1 class="display-4">Портфель</h1>
     <p class="lead"> {{ news }} </p>
+    <p>Hello, my name is <span id="name"></span> and I am <span id="age"></span> years old.</p>
+
 </div>
 
 <div class="container">
@@ -87,4 +89,20 @@
 <!--<a href="Ссылка" onclick="location.reload(); return false;">Обновить</a>-->
 <div id="torrent-scanner-popup" style="display: none;"></div>
 </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+    setInterval(function() {
+        $.ajax({
+            url: '/get-data/',
+            type: 'get',
+            success: function(response) {
+                var data = JSON.parse(response);
+                $('#name').text(data.name);
+                $('#age').text(data.age);
+            }
+          }
+        }
+      }
+</script>
 {% endblock %}

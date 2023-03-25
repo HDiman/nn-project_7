@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Portfolio
 import random
 import math
+import time
 
 # Create your views here.
 start_capital = 100000.00
@@ -17,12 +18,20 @@ def months(num):
     return num
 
 
+# Блок по автоматизации процесса
+def auto_btn(request):
+    bonds = Portfolio.objects.all()[1]
+    bonds.month = 1
+    bonds.save()
+    return redirect('home')
+
+
 # Блок по сбросу к начальным настройкам со страницы
 def zero_btn(request):
     stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
     stocks.title, stocks.num, stocks.price, stocks.month = 'Акции', 500, 100, -1
-    bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, -1
+    bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, 0
     stocks.save()
     bonds.save()
     return redirect('home')
@@ -38,7 +47,7 @@ def equalize_btn(request):
     half_capital = round(capital / 2)
     stocks.num = round(half_capital / stocks.price)
     bonds.num = round(half_capital / 1000)
-    bonds.price, bonds.month = 1000, -10
+    bonds.price = 1000
     stocks.save()
     bonds.save()
     return redirect('home')
@@ -49,7 +58,7 @@ def start_training_after_120():
     stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
     stocks.title, stocks.num, stocks.price, stocks.month = 'Акции', 500, 100, -2
-    bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, -2
+    bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, 0
     stocks.save()
     bonds.save()
 
@@ -59,7 +68,7 @@ def start_training():
     stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
     stocks.title, stocks.num, stocks.price, stocks.month = 'Акции', 500, 100, -1
-    bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, -1
+    bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, 0
     stocks.save()
     bonds.save()
 
@@ -108,82 +117,92 @@ def null_round(item1, item2, item3):
 
 def index(request):
 
-    # Блок инициализации данных из Базы Данных
-    global news_text
+    # Блок расчета остатка месяца до 120 месяцев для автоматизации
     stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
+    if bonds.month == 1:
+        month_left = 120 - stocks.month
+        i = 5
+    else:
+        month_left = 1
+        i = 0
 
-    if stocks.month != -1:  # менять цены
-        # Блок определения цен
-        stocks.price, bonds.price = prices(stocks.price, bonds.price)
+    for i in range(month_left):
+        time.sleep(i)
+        # Блок инициализации данных из Базы Данных
+        global news_text
+        stocks = Portfolio.objects.all()[0]
+        bonds = Portfolio.objects.all()[1]
+        if stocks.month != -1:  # менять цены
+            # Блок определения цен
+            stocks.price, bonds.price = prices(stocks.price, bonds.price)
 
-        # Блок оценки портфеля
-        stocks_sum, bonds_sum, capital, stocks_interest, bonds_interest = briefcase(stocks.num, bonds.num, stocks.price, bonds.price)
+            # Блок оценки портфеля
+            stocks_sum, bonds_sum, capital, stocks_interest, bonds_interest = briefcase(stocks.num, bonds.num, stocks.price, bonds.price)
 
-        # Блок выравнивания портфеля
-        if stocks_interest > 59 or bonds_interest > 59:
-            stocks.num, bonds.num = equalize(capital, stocks.price)
-            bonds.price = 1000
-            bonds.month = 1
+            # Блок выравнивания портфеля
+            if stocks_interest > 59 or bonds_interest > 59:
+                stocks.num, bonds.num = equalize(capital, stocks.price)
+                bonds.price = 1000
 
-        # Блок изменения месяца
-        stocks.month = months(stocks.month)
+            # Блок изменения месяца
+            stocks.month = months(stocks.month)
 
-        # Блок сохранения данных в Базе Данных
-        stocks.save()
-        bonds.save()
+            # Блок сохранения данных в Базе Данных
+            stocks.save()
+            bonds.save()
 
-        # Блок достижения 10 лет
-        if stocks.month == 120:
-            if capital > 1000000:
-                end_capital = round((capital / 1000000), 2)
-                news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} млн. руб."
-            elif capital < 1000000:
-                end_capital = round(capital / 1000)
-                news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} тыс. руб."
-            # Обновление в начале запуска
-            start_training_after_120()
-        else:
+            # Блок достижения 10 лет
+            if stocks.month == 120:
+                if capital > 1000000:
+                    end_capital = round((capital / 1000000), 2)
+                    news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} млн. руб."
+                elif capital < 1000000:
+                    end_capital = round(capital / 1000)
+                    news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} тыс. руб."
+                # Обновление в начале запуска
+                start_training_after_120()
+            else:
+                news_text = "Раз в два месяца идет переоценка портфеля. " \
+                            "Если один из активов больше 60%, то портфель балансируется."
+
+            # Блок по округлению цен
+            stocks_sum, bonds_sum, capital = null_round(stocks_sum, bonds_sum, capital)
+
+            # Блок расчета прироста капитала
+            growth = capital - 100
+
+        elif stocks.month == -1:
+            stocks.month = 0
+            stocks.price, bonds.price = 100, 1000
+            stocks.save()
+            stocks_sum, bonds_sum = 50, 50
+            stocks_interest, bonds_interest = 50, 50
+            capital, growth = 100, 0
             news_text = "Раз в два месяца идет переоценка портфеля. " \
                         "Если один из активов больше 60%, то портфель балансируется."
 
-        # Блок по округлению цен
-        stocks_sum, bonds_sum, capital = null_round(stocks_sum, bonds_sum, capital)
 
-        # Блок расчета прироста капитала
-        growth = capital - 100
+        # Блок данных для страницы
+        data = {'news': news_text,
+                'item1_title': stocks.title,
+                'item1_num': stocks.num,
+                'item1_sum': stocks_sum,
+                'item1_price': stocks.price,
+                'item1_int': stocks_interest,
+                'item2_title': bonds.title,
+                'item2_num': bonds.num,
+                'item2_sum': bonds_sum,
+                'item2_price': bonds.price,
+                'item2_int': bonds_interest,
+                'capital': capital,
+                'cash': cash,
+                'month': stocks.month,
+                'growth': growth,
+                }
 
-    elif stocks.month == -1:
-        stocks.month = 0
-        stocks.price, bonds.price = 100, 1000
-        stocks.save()
-        stocks_sum, bonds_sum = 50, 50
-        stocks_interest, bonds_interest = 50, 50
-        capital, growth = 100, 0
-        news_text = "Раз в два месяца идет переоценка портфеля. " \
-                    "Если один из активов больше 60%, то портфель балансируется."
-
-
-    # Блок данных для страницы
-    data = {'news': news_text,
-            'item1_title': stocks.title,
-            'item1_num': stocks.num,
-            'item1_sum': stocks_sum,
-            'item1_price': stocks.price,
-            'item1_int': stocks_interest,
-            'item2_title': bonds.title,
-            'item2_num': bonds.num,
-            'item2_sum': bonds_sum,
-            'item2_price': bonds.price,
-            'item2_int': bonds_interest,
-            'capital': capital,
-            'cash': cash,
-            'month': stocks.month,
-            'growth': growth,
-            }
-
-    # Блок отправки данных на страницу
-    return render(request, 'main/index.html', context=data)
+        # Блок отправки данных на страницу
+        return render(request, 'main/index.html', context=data)
 
 
 

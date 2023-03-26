@@ -15,15 +15,6 @@ volatility = 0.2  # волатильность акции (стандартно�
 time_horizon = 120  # количество месяцев наблюдения
 
 
-# Блок по Ajax-запросы
-def get_data(request):
-    data = {
-        'name': 'John',
-        'age': '30'
-    }
-    return JsonResponse(json.dumps(data))
-
-
 # Счетчик времени
 def months(num):
     num += 1
@@ -130,91 +121,90 @@ def null_round(item1, item2, item3):
 def index(request):
 
     # Блок расчета остатка месяца до 120 месяцев для автоматизации
+    # stocks = Portfolio.objects.all()[0]
+    # bonds = Portfolio.objects.all()[1]
+    # if bonds.month == 1:
+    #     month_left = 120 - stocks.month
+    #     i = 5
+    # else:
+    #     month_left = 1
+    #     i = 0
+
+
+    # Блок инициализации данных из Базы Данных
+    global news_text
     stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
-    if bonds.month == 1:
-        month_left = 120 - stocks.month
-        i = 5
-    else:
-        month_left = 1
-        i = 0
+    if stocks.month != -1:  # менять цены
+        # Блок определения цен
+        stocks.price, bonds.price = prices(stocks.price, bonds.price)
 
-    for i in range(month_left):
-        time.sleep(i)
-        # Блок инициализации данных из Базы Данных
-        global news_text
-        stocks = Portfolio.objects.all()[0]
-        bonds = Portfolio.objects.all()[1]
-        if stocks.month != -1:  # менять цены
-            # Блок определения цен
-            stocks.price, bonds.price = prices(stocks.price, bonds.price)
+        # Блок оценки портфеля
+        stocks_sum, bonds_sum, capital, stocks_interest, bonds_interest = briefcase(stocks.num, bonds.num, stocks.price, bonds.price)
 
-            # Блок оценки портфеля
-            stocks_sum, bonds_sum, capital, stocks_interest, bonds_interest = briefcase(stocks.num, bonds.num, stocks.price, bonds.price)
+        # Блок выравнивания портфеля
+        if stocks_interest > 59 or bonds_interest > 59:
+            stocks.num, bonds.num = equalize(capital, stocks.price)
+            bonds.price = 1000
 
-            # Блок выравнивания портфеля
-            if stocks_interest > 59 or bonds_interest > 59:
-                stocks.num, bonds.num = equalize(capital, stocks.price)
-                bonds.price = 1000
+        # Блок изменения месяца
+        stocks.month = months(stocks.month)
 
-            # Блок изменения месяца
-            stocks.month = months(stocks.month)
+        # Блок сохранения данных в Базе Данных
+        stocks.save()
+        bonds.save()
 
-            # Блок сохранения данных в Базе Данных
-            stocks.save()
-            bonds.save()
-
-            # Блок достижения 10 лет
-            if stocks.month == 120:
-                if capital > 1000000:
-                    end_capital = round((capital / 1000000), 2)
-                    news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} млн. руб."
-                elif capital < 1000000:
-                    end_capital = round(capital / 1000)
-                    news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} тыс. руб."
-                # Обновление в начале запуска
-                start_training_after_120()
-            else:
-                news_text = "Раз в два месяца идет переоценка портфеля. " \
-                            "Если один из активов больше 60%, то портфель балансируется."
-
-            # Блок по округлению цен
-            stocks_sum, bonds_sum, capital = null_round(stocks_sum, bonds_sum, capital)
-
-            # Блок расчета прироста капитала
-            growth = capital - 100
-
-        elif stocks.month == -1:
-            stocks.month = 0
-            stocks.price, bonds.price = 100, 1000
-            stocks.save()
-            stocks_sum, bonds_sum = 50, 50
-            stocks_interest, bonds_interest = 50, 50
-            capital, growth = 100, 0
+        # Блок достижения 10 лет
+        if stocks.month == 120:
+            if capital > 1000000:
+                end_capital = round((capital / 1000000), 2)
+                news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} млн. руб."
+            elif capital < 1000000:
+                end_capital = round(capital / 1000)
+                news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} тыс. руб."
+            # Обновление в начале запуска
+            start_training_after_120()
+        else:
             news_text = "Раз в два месяца идет переоценка портфеля. " \
                         "Если один из активов больше 60%, то портфель балансируется."
 
+        # Блок по округлению цен
+        stocks_sum, bonds_sum, capital = null_round(stocks_sum, bonds_sum, capital)
 
-        # Блок данных для страницы
-        data = {'news': news_text,
-                'item1_title': stocks.title,
-                'item1_num': stocks.num,
-                'item1_sum': stocks_sum,
-                'item1_price': stocks.price,
-                'item1_int': stocks_interest,
-                'item2_title': bonds.title,
-                'item2_num': bonds.num,
-                'item2_sum': bonds_sum,
-                'item2_price': bonds.price,
-                'item2_int': bonds_interest,
-                'capital': capital,
-                'cash': cash,
-                'month': stocks.month,
-                'growth': growth,
-                }
+        # Блок расчета прироста капитала
+        growth = capital - 100
 
-        # Блок отправки данных на страницу
-        return render(request, 'main/index.html', context=data)
+    elif stocks.month == -1:
+        stocks.month = 0
+        stocks.price, bonds.price = 100, 1000
+        stocks.save()
+        stocks_sum, bonds_sum = 50, 50
+        stocks_interest, bonds_interest = 50, 50
+        capital, growth = 100, 0
+        news_text = "Раз в два месяца идет переоценка портфеля. " \
+                    "Если один из активов больше 60%, то портфель балансируется."
+
+
+    # Блок данных для страницы
+    data = {'news': news_text,
+            'item1_title': stocks.title,
+            'item1_num': stocks.num,
+            'item1_sum': stocks_sum,
+            'item1_price': stocks.price,
+            'item1_int': stocks_interest,
+            'item2_title': bonds.title,
+            'item2_num': bonds.num,
+            'item2_sum': bonds_sum,
+            'item2_price': bonds.price,
+            'item2_int': bonds_interest,
+            'capital': capital,
+            'cash': cash,
+            'month': stocks.month,
+            'growth': growth,
+            }
+
+    # Блок отправки данных на страницу
+    return render(request, 'main/index.html', context=data)
 
 
 

@@ -12,6 +12,25 @@
     <p class="lead"> {{ news }} </p>
 </div>
 
+<div>
+<h1 id="counter"></h1>
+<button id="count-button">Старт</button>
+<script>
+        $(document).ready(function(){
+            $('#count-button').click(function(){
+                $.ajax({
+                    url: '{% url "count_view" %}',
+                    type: 'GET',
+                    success: function(response){
+                        var counter = response.counter.join(', ');
+                        $('#counter').text(counter);
+                    }
+                });
+            });
+        });
+    </script>
+</div>
+
 <div class="container">
     <div class="card-deck mb-3 text-center">
         <div class="card mb-4 shadow-sm">

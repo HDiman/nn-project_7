@@ -7,4 +7,5 @@ urlpatterns = [
     path('zero', views.zero_btn, name="zero"),
     path('equalize', views.equalize_btn, name="equalize"),
     path('auto', views.auto_btn, name="auto"),
+    path('count_view', views.count_view, name='count_view'),
 ]

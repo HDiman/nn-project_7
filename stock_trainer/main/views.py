@@ -7,6 +7,13 @@ import json
 from django.http import JsonResponse
 
 
+# Блок по Ajax-запросам
+def count_view(request):
+    counter = [i for i in range(1, 101)]
+    data = {'counter': counter}
+    return JsonResponse(data)
+
+
 # Create your views here.
 start_capital = 100000.00
 cash = 0

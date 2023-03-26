@@ -9,13 +9,10 @@ from django.http import JsonResponse
 
 # Блок по Ajax-запросам
 def count_view(request):
-    # counter = [i for i in range(1, 101)]
-    stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
-    stocks_sum = round(stocks.price * stocks.num)
-    bonds_sum = round(bonds.price * bonds.num)
-    capital = round(stocks_sum + bonds_sum)
-    data = {'counter': [capital]}
+    bonds.month += 1
+    bonds.save()
+    data = {'counter': [bonds.month]}
     return JsonResponse(data)
 
 

@@ -208,7 +208,7 @@ def index(request):
             'item2_int': bonds_interest,
             'capital': capital,
             'cash': cash,
-            'month': stocks.month,
+            'month': bonds.month,
             'growth': growth,
             }
 

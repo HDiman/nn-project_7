@@ -129,17 +129,6 @@ def null_round(item1, item2, item3):
 
 def index(request):
 
-    # Блок расчета остатка месяца до 120 месяцев для автоматизации
-    # stocks = Portfolio.objects.all()[0]
-    # bonds = Portfolio.objects.all()[1]
-    # if bonds.month == 1:
-    #     month_left = 120 - stocks.month
-    #     i = 5
-    # else:
-    #     month_left = 1
-    #     i = 0
-
-
     # Блок инициализации данных из Базы Данных
     global news_text
     stocks = Portfolio.objects.all()[0]
@@ -156,7 +145,7 @@ def index(request):
             stocks.num, bonds.num = equalize(capital, stocks.price)
             bonds.price = 1000
 
-        # Блок изменения месяца
+        # Блок изменения месяца Акций
         stocks.month = months(stocks.month)
 
         # Блок сохранения данных в Базе Данных

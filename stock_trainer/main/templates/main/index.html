@@ -13,22 +13,11 @@
 </div>
 
 <div>
-<h1 id="counter"></h1>
-<button id="count-button">Старт</button>
-<script>
-        $(document).ready(function(){
-            $('#count-button').click(function(){
-                $.ajax({
-                    url: '{% url "count_view" %}',
-                    type: 'GET',
-                    success: function(response){
-                        var counter = response.counter.join(', ');
-                        $('#counter').text(counter);
-                    }
-                });
-            });
-        });
-    </script>
+<!--<h1 id="counter"></h1>-->
+<!--    <button>Старт</button>-->
+<!--<button id="count-button">Старт</button>-->
+
+
 </div>
 
 <div class="container">
@@ -81,7 +70,7 @@
                 <p></p>
                 <form action="{% url 'home' %}" method="post">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-lg btn-block btn-primary">Продолжить</button>
+                    <button type="submit" id="count-button" class="btn btn-lg btn-block btn-primary">Продолжить</button>
                 </form>
             </div>
         </div>
@@ -90,7 +79,23 @@
 
     <div class="text-center">
         <h1 class="display-5">Месяц: {{ month }} </h1>
+        <h1 id="counter"> {{ counter }} </h1>
     </div>
+
+    <script>
+        $(document).ready(function(){
+            $('#count-button').click(function(){
+                $.ajax({
+                    url: '{% url "count_view" %}',
+                    type: 'GET',
+                    success: function(response){
+                        var counter = response.counter.join(', ');
+                        $('#counter').text(counter);
+                    }
+                });
+            });
+        });
+    </script>
 
     <footer class="pt-4 my-md-5 pt-md-5 border-top">
         <div class="row">

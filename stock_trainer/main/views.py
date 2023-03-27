@@ -7,6 +7,26 @@ import json
 from django.http import JsonResponse
 
 
+# Create your views here.
+start_capital = 100000.00
+cash = 0
+month = 0
+volatility = 0.2  # волатильность акции (стандартное отклонение ежемесячных процентных изменений цены)
+time_horizon = 120  # количество месяцев наблюдения
+
+
+# Счетчик депозита
+def depo(num):
+    num += 10
+    return num
+
+
+# Счетчик времени
+def months(num):
+    num += 1
+    return num
+
+
 # Блок по Ajax-запросам: Счетчик месяца по акциям
 def count_view(request):
     stocks = Portfolio.objects.all()[0]
@@ -23,20 +43,6 @@ def count_view(request):
 #     bonds.save()
 #     data = {'counter': [bonds.month]}
 #     return JsonResponse(data)
-
-
-# Create your views here.
-start_capital = 100000.00
-cash = 0
-month = 0
-volatility = 0.2  # волатильность акции (стандартное отклонение ежемесячных процентных изменений цены)
-time_horizon = 120  # количество месяцев наблюдения
-
-
-# Счетчик времени
-def months(num):
-    num += 1
-    return num
 
 
 # Блок по автоматизации процесса
@@ -139,10 +145,12 @@ def null_round(item1, item2, item3):
 def index(request):
 
     # Блок инициализации данных из Базы Данных
-    global news_text
+    global news_text, cash
     stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
+
     if stocks.month != -1:  # менять цены
+
         # Блок определения цен
         stocks.price, bonds.price = prices(stocks.price, bonds.price)
 
@@ -172,8 +180,7 @@ def index(request):
             # Обновление в начале запуска
             start_training_after_120()
         else:
-            news_text = "Раз в два месяца идет переоценка портфеля. " \
-                        "Если один из активов больше 60%, то портфель балансируется."
+            news_text = "Если один из активов больше 60%, то портфель балансируется."
 
         # Блок по округлению цен
         stocks_sum, bonds_sum, capital = null_round(stocks_sum, bonds_sum, capital)
@@ -188,11 +195,13 @@ def index(request):
         stocks_sum, bonds_sum = 50, 50
         stocks_interest, bonds_interest = 50, 50
         capital, growth = 100, 0
-        news_text = "Раз в два месяца идет переоценка портфеля. " \
-                    "Если один из активов больше 60%, то портфель балансируется."
+        cash = 0
+        news_text = "Если один из активов больше 60%, то портфель балансируется."
 
+    # Блок по расчету роста депозита
+    cash += 10
 
-    # Блок данных для страницы
+        # Блок обновления данных для страницы
     data = {'news': news_text,
             'item1_title': stocks.title,
             'item1_num': stocks.num,

@@ -25,8 +25,8 @@
                     <h5><li>Курс: {{item1_price}} руб.</li></h5>
                     <li>{{item1_int}}% (от капитала)</li>
                 </ul>
-                <button type="button" class="btn btn-lg btn-block btn-outline-primary">Купить</button>
-                <button type="button" class="btn btn-lg btn-block btn-primary">Продать</button>
+<!--                <button type="button" class="btn btn-lg btn-block btn-outline-primary">Купить</button>-->
+<!--                <button type="button" class="btn btn-lg btn-block btn-primary">Продать</button>-->
             </div>
         </div>
         <div class="card mb-4 shadow-sm">
@@ -40,8 +40,8 @@
                     <h5><li>Цена: {{item2_price}} руб.</li></h5>
                     <li>{{item2_int}}% (от капитала)</li>
                 </ul>
-                <button type="button" class="btn btn-lg btn-block btn-outline-primary">Купить</button>
-                <button type="button" class="btn btn-lg btn-block btn-primary">Продать</button>
+<!--                <button type="button" class="btn btn-lg btn-block btn-outline-primary">Купить</button>-->
+<!--                <button type="button" class="btn btn-lg btn-block btn-primary">Продать</button>-->
             </div>
         </div>
         <div class="card mb-4 shadow-sm">
@@ -55,22 +55,27 @@
                     <li>Прирост/убыток: {{ growth }} %</li>
                     <li>Депозит: {{ cash }} руб. </li>
                 </ul>
-                <form action="{% url 'equalize' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-lg btn-block btn-outline-primary">Сбалансировать</button>
-                </form>
+<!--                <form action="{% url 'equalize' %}" method="post">-->
+<!--                    {% csrf_token %}-->
+<!--                    <button type="submit" class="btn btn-lg btn-block btn-outline-primary">Сбалансировать</button>-->
+<!--                </form>-->
                 <p></p>
-                <form action="{% url 'home' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" id="count-button" class="btn btn-lg btn-block btn-primary">Продолжить</button>
-                </form>
+<!--                <form action="{% url 'home' %}" method="post">-->
+<!--                    {% csrf_token %}-->
+<!--                    <button type="submit" id="count-button" class="btn btn-lg btn-block btn-primary">Продолжить</button>-->
+<!--                </form>-->
             </div>
         </div>
     </div>
 
-
     <div class="text-center">
-        <h1 class="display-5">Месяц: {{ month }} </h1>
+        <h1 class="display-5">{{ month }} мес.</h1>
+    </div>
+    <div class="text-center">
+        <form action="{% url 'home' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" id="count-button" class="btn btn-lg btn-primary">Продолжить</button>
+        </form>
     </div>
 
     <script>

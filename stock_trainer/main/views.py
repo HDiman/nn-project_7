@@ -7,13 +7,22 @@ import json
 from django.http import JsonResponse
 
 
-# Блок по Ajax-запросам
+# Блок по Ajax-запросам: Счетчик месяца по акциям
 def count_view(request):
-    bonds = Portfolio.objects.all()[1]
-    bonds.month += 1
-    bonds.save()
-    data = {'counter': [bonds.month]}
+    stocks = Portfolio.objects.all()[0]
+    stocks.month += 1
+    stocks.save()
+    data = {'counter': [stocks.month]}
     return JsonResponse(data)
+
+
+# Блок по Ajax-запросам: Счетчик месяца по облигациям
+# def count_view(request):
+#     bonds = Portfolio.objects.all()[1]
+#     bonds.month += 1
+#     bonds.save()
+#     data = {'counter': [bonds.month]}
+#     return JsonResponse(data)
 
 
 # Create your views here.
@@ -93,7 +102,7 @@ def prices(stock_price, bond_price):
         stock_price *= 2
     elif stock_price > 3000:
         stock_price -= 300
-    bond_price = round(bond_price + 5)
+    bond_price = round(bond_price + 2)
     return round(stock_price), round(bond_price)
 
 
@@ -129,17 +138,6 @@ def null_round(item1, item2, item3):
 
 def index(request):
 
-    # Блок расчета остатка месяца до 120 месяцев для автоматизации
-    # stocks = Portfolio.objects.all()[0]
-    # bonds = Portfolio.objects.all()[1]
-    # if bonds.month == 1:
-    #     month_left = 120 - stocks.month
-    #     i = 5
-    # else:
-    #     month_left = 1
-    #     i = 0
-
-
     # Блок инициализации данных из Базы Данных
     global news_text
     stocks = Portfolio.objects.all()[0]
@@ -157,7 +155,7 @@ def index(request):
             bonds.price = 1000
 
         # Блок изменения месяца
-        stocks.month = months(stocks.month)
+        # stocks.month = months(stocks.month)
 
         # Блок сохранения данных в Базе Данных
         stocks.save()
@@ -208,7 +206,7 @@ def index(request):
             'item2_int': bonds_interest,
             'capital': capital,
             'cash': cash,
-            'month': bonds.month,
+            'month': stocks.month,
             'growth': growth,
             }
 

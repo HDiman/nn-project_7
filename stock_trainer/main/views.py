@@ -9,7 +9,7 @@ from django.http import JsonResponse
 
 # Create your views here.
 start_capital = 100000.00
-cash = 0
+# cash = -100
 month = 0
 volatility = 0.2  # волатильность акции (стандартное отклонение ежемесячных процентных изменений цены)
 time_horizon = 120  # количество месяцев наблюдения
@@ -17,7 +17,7 @@ time_horizon = 120  # количество месяцев наблюдения
 
 # Счетчик депозита
 def depo(num):
-    num += 10
+    num += 5
     return num
 
 
@@ -159,7 +159,9 @@ def index(request):
 
         # Блок выравнивания портфеля
         if stocks_interest > 59 or bonds_interest > 59:
+            # capital = capital + cash
             stocks.num, bonds.num = equalize(capital, stocks.price)
+            cash = 0
             bonds.price = 1000
 
         # Блок изменения месяца
@@ -179,6 +181,7 @@ def index(request):
                 news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} тыс. руб."
             # Обновление в начале запуска
             start_training_after_120()
+            cash = 0
         else:
             news_text = "Если один из активов больше 60%, то портфель балансируется."
 
@@ -199,7 +202,7 @@ def index(request):
         news_text = "Если один из активов больше 60%, то портфель балансируется."
 
     # Блок по расчету роста депозита
-    cash += 10
+    # cash = depo(cash)
 
         # Блок обновления данных для страницы
     data = {'news': news_text,

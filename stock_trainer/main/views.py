@@ -9,7 +9,7 @@ import math
 
 
 # Create your views here.
-start_capital = 100000.00
+start_capital = 100000
 cash = 0
 month = 0
 volatility = 0.2  # волатильность акции (стандартное отклонение ежемесячных процентных изменений цены)

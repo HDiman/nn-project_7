@@ -5,6 +5,7 @@ import math
 import time
 import json
 from django.http import JsonResponse
+import math
 
 
 # Create your views here.
@@ -43,6 +44,11 @@ def count_view(request):
 #     bonds.save()
 #     data = {'counter': [bonds.month]}
 #     return JsonResponse(data)
+
+
+# Блок по расчету лет и ставки
+def year(month_num):
+    return math.floor(month_num / 12)
 
 
 # Блок по автоматизации процесса
@@ -191,6 +197,9 @@ def index(request):
         # Блок расчета прироста капитала
         growth = capital - 100
 
+        # Блок расчета ставки за год
+        year_num = year(stocks.month)
+
     elif stocks.month == -1:
         stocks.month = 0
         stocks.price, bonds.price = 100, 1000
@@ -199,6 +208,7 @@ def index(request):
         stocks_interest, bonds_interest = 50, 50
         capital, growth = 100, 0
         cash = 0
+        year_num = 0
         news_text = "Если один из активов больше 60%, то портфель балансируется"
 
     # Блок по расчету роста депозита
@@ -220,6 +230,7 @@ def index(request):
             'cash': cash,
             'month': stocks.month,
             'growth': growth,
+            'year': year_num,
             }
 
     # Блок отправки данных на страницу

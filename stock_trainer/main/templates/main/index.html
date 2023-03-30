@@ -52,7 +52,15 @@
                 <h1 class="card-title pricing-card-title"> {{ capital }} тыс. руб.</h1>
                 <ul class="list-unstyled mt-3 mb-4">
                     <li>Прирост/убыток: {{ growth }} %</li>
+                    {% if year == 1 %}
+                        <li>за {{year}} год</li>
+                    {% elif year < 5 and year > 1 %}
+                        <li>за {{year}} года</li>
+                    {% elif year < 11 %}
+                        <li>за {{year}} лет</li>
+                    {% endif %}
                     <li>------------------------------</li>
+
 <!--                    <li>Ежемес. вклад: +10 тыс. руб. </li>-->
 <!--                    <li>Депозит: {{ cash }} тыс. руб. </li>-->
                 </ul>

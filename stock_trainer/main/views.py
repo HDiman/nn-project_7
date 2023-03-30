@@ -46,9 +46,17 @@ def count_view(request):
 #     return JsonResponse(data)
 
 
-# Блок по расчету лет и ставки
+# Блок по расчету лет
 def year(month_num):
     return math.floor(month_num / 12)
+
+
+# Блок по расчету ставки
+def interest(grows, month_num):
+    if month_num == 0:
+        return 0
+    else:
+        return (grows / month_num) * 12
 
 
 # Блок по автоматизации процесса
@@ -197,8 +205,12 @@ def index(request):
         # Блок расчета прироста капитала
         growth = capital - 100
 
-        # Блок расчета ставки за год
+        # Блок расчета кол-ва пройденных лет
         year_num = year(stocks.month)
+        year_month = stocks.month - year_num * 12
+
+        # Блок по расчеты средней прибыли за год в процентах
+        year_int = round(interest(growth, stocks.month))
 
     elif stocks.month == -1:
         stocks.month = 0
@@ -209,6 +221,8 @@ def index(request):
         capital, growth = 100, 0
         cash = 0
         year_num = 0
+        year_int = 0
+        year_month = 0
         news_text = "Если один из активов больше 60%, то портфель балансируется"
 
     # Блок по расчету роста депозита
@@ -231,6 +245,8 @@ def index(request):
             'month': stocks.month,
             'growth': growth,
             'year': year_num,
+            'year_int': year_int,
+            'year_month': year_month,
             }
 
     # Блок отправки данных на страницу

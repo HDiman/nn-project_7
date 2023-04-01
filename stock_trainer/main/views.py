@@ -187,6 +187,7 @@ def index(request):
 
         # Блок достижения 10 лет
         if stocks.month == 120:
+            end_capital = 0
             if capital > 1000000:
                 end_capital = round((capital / 1000000), 2)
             elif capital < 1000000:

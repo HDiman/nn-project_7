@@ -189,10 +189,9 @@ def index(request):
         if stocks.month == 120:
             if capital > 1000000:
                 end_capital = round((capital / 1000000), 2)
-                news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} млн. руб."
             elif capital < 1000000:
                 end_capital = round(capital / 1000)
-                news_text = f"Поздравляем! Прошло 10 лет. Из 100 тыс. вы сделали {end_capital} тыс. руб."
+            news_text = f"Поздравляем! За 10 лет из 100 тыс. капитал вырос до {end_capital} млн. руб."
             # Обновление в начале запуска
             start_training_after_120()
             cash = 0

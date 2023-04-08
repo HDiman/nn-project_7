@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import Portfolio
 import random
-import math
 import time
 import json
 from django.http import JsonResponse
@@ -98,7 +97,7 @@ def equalize_btn(request):
 def start_training_after_120():
     stocks = Portfolio.objects.all()[0]
     bonds = Portfolio.objects.all()[1]
-    stocks.title, stocks.num, stocks.price, stocks.month = 'Акции', 500, 100, -2
+    stocks.title, stocks.num, stocks.price, stocks.month = 'Акции', 500, 100, -1
     bonds.title, bonds.num, bonds.price, bonds.month = 'Облигации', 50, 1000, 0
     stocks.save()
     bonds.save()
@@ -190,9 +189,10 @@ def index(request):
             end_capital = 0
             if capital > 1000000:
                 end_capital = round((capital / 1000000), 2)
+                news_text = f"Поздравляем! За 10 лет из 100 тыс. капитал вырос до {end_capital} млн. руб."
             elif capital < 1000000:
                 end_capital = round(capital / 1000)
-            news_text = f"Поздравляем! За 10 лет из 100 тыс. капитал вырос до {end_capital} млн. руб."
+                news_text = f"Поздравляем! За 10 лет из 100 тыс. капитал вырос до {end_capital} тыс. руб."
             # Обновление в начале запуска
             start_training_after_120()
             cash = 0
